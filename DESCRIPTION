@@ -1,8 +1,8 @@
 Package: PharmacoGx
 Type: Package
-Title: Large-Scale Analysis of Pharmacogenomic Data
-Version: 1.0.6
-Date: 2015-07-23
+Title: Analysis of Large-Scale Pharmacogenomic Data
+Version: 1.1.2
+Date: 2015-11-13
 Author: Petr Smirnov, Zhaleh Safikhani, Benjamin Haibe-Kains
 Maintainer: Benjamin Haibe-Kains <benjamin.haibe.kains@utoronto.ca>
 Description: Contains a set of functions to perform large-scale analysis of pharmacogenomic data.
@@ -12,9 +12,7 @@ Encoding: UTF-8
 Imports: Biobase, piano, magicaxis, RColorBrewer, parallel, caTools,
         methods, downloader, stats, utils, graphics, grDevices
 Depends: R (>= 2.10)
-URL: http://www.pmgenomics.ca/bhklab/software/pharmacogx
-LazyData: yes
 NeedsCompilation: no
-Packaged: 2015-07-23 21:59:54 UTC; haibeb
+Packaged: 2015-11-14 18:15:28 UTC; bhaibeka
 Repository: CRAN
-Date/Publication: 2015-07-24 07:53:45
+Date/Publication: 2015-11-15 10:08:46

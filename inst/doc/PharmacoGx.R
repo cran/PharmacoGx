@@ -2,9 +2,9 @@
 ### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: setup
+### code chunk number 1: setup (eval = FALSE)
 ###################################################
-options(keep.source=TRUE)
+## options(keep.source=TRUE)
 
 
 ###################################################
@@ -24,85 +24,85 @@ options(keep.source=TRUE)
 ### code chunk number 4: download-example (eval = FALSE)
 ###################################################
 ## ## Example
-## CGP <- downloadPSet("CGP") 
+## availablePSets()
+## GDSC <- downloadPSet("GDSC") 
 
 
 ###################################################
 ### code chunk number 5: download-sig (eval = FALSE)
 ###################################################
 ## ## Example
-## CGP.sigs <- downloadSignatures("CGP")
+## CMAP.sigs <- downloadPertSig("CMAP")
 
 
 ###################################################
-### code chunk number 6: load-examples (eval = FALSE)
+### code chunk number 6: inconsistencies (eval = FALSE)
 ###################################################
-##   ##Using the included example datasets
+##   library(Biobase)
 ##   library(PharmacoGx)
-##   data("CGPsmall")
+##   data("GDSCsmall")
 ##   data("CCLEsmall")
-##   CGPsmall <- probeGeneMapping(CGPsmall) 
-##   CCLEsmall <- probeGeneMapping(CCLEsmall) 
-
-
-###################################################
-### code chunk number 7: inconsistencies (eval = FALSE)
-###################################################
-##   library(PharmacoGx)
-##   data("CGPsmall")
-##   data("CCLEsmall")
-##   CGPsmall <- probeGeneMapping(CGPsmall) 
-##   CCLEsmall <- probeGeneMapping(CCLEsmall) 
+##   commonGenes <- intersect(featureNames(GDSCsmall, "rna"),
+##                            featureNames(CCLEsmall,"rna"))
 ##   common <- intersectPSet(list('CCLE'=CCLEsmall,
-##                                'CGP'=CGPsmall),
-##                           intersectOn=c("cell.lines", "drugs", 'genes'))
+##                                'GDSC'=GDSCsmall),
+##                           intersectOn=c("cell.lines", "drugs"))
+## 
 ##   
-##   CGP.auc <- summarizeSensitivityPhenotype(
-##                 common$CGP, 
+##   GDSC.auc <- summarizeSensitivityProfiles(
+##                 common$GDSC,
 ##                 sensitivity.measure='auc_published', 
-##                 summaryStat="median")
-##   CCLE.auc <- summarizeSensitivityPhenotype(
-##                 common$CCLE, 
+##                 summary.stat="median")
+##   CCLE.auc <- summarizeSensitivityProfiles(
+##                 common$CCLE,
 ##                 sensitivity.measure='auc_published', 
-##                 summaryStat="median")
+##                 summary.stat="median")
 ##   
-##   CGP.ic50 <- summarizeSensitivityPhenotype(
-##                 common$CGP, 
+##   GDSC.ic50 <- summarizeSensitivityProfiles(
+##                 common$GDSC, 
 ##                 sensitivity.measure='ic50_published', 
-##                 summaryStat="median")
-##   CCLE.ic50 <- summarizeSensitivityPhenotype(
+##                 summary.stat="median")
+##   CCLE.ic50 <- summarizeSensitivityProfiles(
 ##                 common$CCLE, 
 ##                 sensitivity.measure='ic50_published', 
-##                 summaryStat="median")
+##                 summary.stat="median")
 ##   
-##   common$CGP <- summarizeGeneExpression(common$CGP, 
-##                                         cellNames(common$CGP),
+##   GDSCexpression <- summarizeMolecularProfiles(common$GDSC, 
+##                                         cellNames(common$GDSC),
+##                                         mDataType="rna",
+##                                         features=commonGenes,
 ##                                         verbose=FALSE)
-##   common$CCLE <- summarizeGeneExpression(common$CCLE, 
+##   CCLEexpression <- summarizeMolecularProfiles(common$CCLE, 
 ##                                          cellNames(common$CCLE),
+##                                          mDataType="rna",
+##                                          features=commonGenes,
 ##                                          verbose=FALSE)
-##   gg <- geneNames(common[[1]])
+##   gg <- featureNames(common[[1]], 'rna')
 ##   cc <- cellNames(common[[1]])
 ##   
 ##   ge.cor <- sapply(cc, function (x, d1, d2) {
 ##     return (stats::cor(d1[ , x], d2[ , x], method="spearman",
 ##                 use="pairwise.complete.obs"))
-##   }, d1=rnaData(common$CGP), d2=rnaData(common$CCLE))
+##   }, d1=exprs(GDSCexpression), d2=exprs(CCLEexpression))
 ##   ic50.cor <- sapply(cc, function (x, d1, d2) {
 ##     return (stats::cor(d1[, x], d2[ , x], method="spearman",
 ##                 use="pairwise.complete.obs"))
-##   }, d1=t(CGP.ic50), d2=t(CCLE.ic50))
+##   }, d1=GDSC.ic50, d2=CCLE.ic50)
 ##   auc.cor <- sapply(cc, function (x, d1, d2) {
 ##     return (stats::cor(d1[ , x], d2[ , x], method="spearman",
 ##                 use="pairwise.complete.obs"))
-##   }, d1=t(CGP.auc), d2=t(CCLE.auc))
+##   }, d1=GDSC.auc, d2=CCLE.auc)
 ##   
-##   w1 <- stats::wilcox.test(x=ge.cor, y=auc.cor, conf.int=TRUE, exact=FALSE)
-##   w2 <- stats::wilcox.test(x=ge.cor, y=ic50.cor, conf.int=TRUE, exact=FALSE)
+##   w1 <- stats::wilcox.test(x=ge.cor, y=auc.cor,
+##                            conf.int=TRUE, exact=FALSE)
+##   w2 <- stats::wilcox.test(x=ge.cor, y=ic50.cor,
+##                            conf.int=TRUE, exact=FALSE)
 ##   yylim <- c(-1, 1)
 ##   ss <- sprintf("GE vs. AUC = %.1E\nGE vs. IC50 = %.1E",
 ##                 w1$p.value, w2$p.value)
-##   boxplot(list("GE"=ge.cor, "AUC"=auc.cor, "IC50"=ic50.cor),
+##   boxplot(list("GE"=ge.cor,
+##                "AUC"=auc.cor,
+##                "IC50"=ic50.cor),
 ##           main="Concordance between cell lines",
 ##           ylab=expression(R[s]),
 ##           sub=ss,
@@ -114,64 +114,74 @@ options(keep.source=TRUE)
 
 
 ###################################################
-### code chunk number 8: fig2
+### code chunk number 7: fig2
 ###################################################
 
+  library(Biobase)
   library(PharmacoGx)
-  data("CGPsmall")
+  data("GDSCsmall")
   data("CCLEsmall")
-  CGPsmall <- probeGeneMapping(CGPsmall) 
-  CCLEsmall <- probeGeneMapping(CCLEsmall) 
+  commonGenes <- intersect(featureNames(GDSCsmall, "rna"),
+                           featureNames(CCLEsmall,"rna"))
   common <- intersectPSet(list('CCLE'=CCLEsmall,
-                               'CGP'=CGPsmall),
-                          intersectOn=c("cell.lines", "drugs", 'genes'))
+                               'GDSC'=GDSCsmall),
+                          intersectOn=c("cell.lines", "drugs"))
+
   
-  CGP.auc <- summarizeSensitivityPhenotype(
-                common$CGP, 
+  GDSC.auc <- summarizeSensitivityProfiles(
+                common$GDSC,
                 sensitivity.measure='auc_published', 
-                summaryStat="median")
-  CCLE.auc <- summarizeSensitivityPhenotype(
-                common$CCLE, 
+                summary.stat="median")
+  CCLE.auc <- summarizeSensitivityProfiles(
+                common$CCLE,
                 sensitivity.measure='auc_published', 
-                summaryStat="median")
+                summary.stat="median")
   
-  CGP.ic50 <- summarizeSensitivityPhenotype(
-                common$CGP, 
+  GDSC.ic50 <- summarizeSensitivityProfiles(
+                common$GDSC, 
                 sensitivity.measure='ic50_published', 
-                summaryStat="median")
-  CCLE.ic50 <- summarizeSensitivityPhenotype(
+                summary.stat="median")
+  CCLE.ic50 <- summarizeSensitivityProfiles(
                 common$CCLE, 
                 sensitivity.measure='ic50_published', 
-                summaryStat="median")
+                summary.stat="median")
   
-  common$CGP <- summarizeGeneExpression(common$CGP, 
-                                        cellNames(common$CGP),
+  GDSCexpression <- summarizeMolecularProfiles(common$GDSC, 
+                                        cellNames(common$GDSC),
+                                        mDataType="rna",
+                                        features=commonGenes,
                                         verbose=FALSE)
-  common$CCLE <- summarizeGeneExpression(common$CCLE, 
+  CCLEexpression <- summarizeMolecularProfiles(common$CCLE, 
                                          cellNames(common$CCLE),
+                                         mDataType="rna",
+                                         features=commonGenes,
                                          verbose=FALSE)
-  gg <- geneNames(common[[1]])
+  gg <- featureNames(common[[1]], 'rna')
   cc <- cellNames(common[[1]])
   
   ge.cor <- sapply(cc, function (x, d1, d2) {
     return (stats::cor(d1[ , x], d2[ , x], method="spearman",
                 use="pairwise.complete.obs"))
-  }, d1=rnaData(common$CGP), d2=rnaData(common$CCLE))
+  }, d1=exprs(GDSCexpression), d2=exprs(CCLEexpression))
   ic50.cor <- sapply(cc, function (x, d1, d2) {
     return (stats::cor(d1[, x], d2[ , x], method="spearman",
                 use="pairwise.complete.obs"))
-  }, d1=t(CGP.ic50), d2=t(CCLE.ic50))
+  }, d1=GDSC.ic50, d2=CCLE.ic50)
   auc.cor <- sapply(cc, function (x, d1, d2) {
     return (stats::cor(d1[ , x], d2[ , x], method="spearman",
                 use="pairwise.complete.obs"))
-  }, d1=t(CGP.auc), d2=t(CCLE.auc))
+  }, d1=GDSC.auc, d2=CCLE.auc)
   
-  w1 <- stats::wilcox.test(x=ge.cor, y=auc.cor, conf.int=TRUE, exact=FALSE)
-  w2 <- stats::wilcox.test(x=ge.cor, y=ic50.cor, conf.int=TRUE, exact=FALSE)
+  w1 <- stats::wilcox.test(x=ge.cor, y=auc.cor,
+                           conf.int=TRUE, exact=FALSE)
+  w2 <- stats::wilcox.test(x=ge.cor, y=ic50.cor,
+                           conf.int=TRUE, exact=FALSE)
   yylim <- c(-1, 1)
   ss <- sprintf("GE vs. AUC = %.1E\nGE vs. IC50 = %.1E",
                 w1$p.value, w2$p.value)
-  boxplot(list("GE"=ge.cor, "AUC"=auc.cor, "IC50"=ic50.cor),
+  boxplot(list("GE"=ge.cor,
+               "AUC"=auc.cor,
+               "IC50"=ic50.cor),
           main="Concordance between cell lines",
           ylab=expression(R[s]),
           sub=ss,
@@ -185,15 +195,16 @@ options(keep.source=TRUE)
 
 
 ###################################################
-### code chunk number 9: load-cmap
+### code chunk number 8: load-cmap
 ###################################################
   library(PharmacoGx)
   require(xtable)
   data(CMAPsmall)
-  drug.perturbation <- drugPertubrationSig(CMAPsmall)
+  drug.perturbation <- drugPerturbationSig(CMAPsmall, mDataType="rna")
   data(HDAC_genes)
   
-  res <- apply(drug.perturbation[,,c("tstat", "fdr")], 2, function(x, HDAC){ 
+  res <- apply(drug.perturbation[,,c("tstat", "fdr")],
+               2, function(x, HDAC){ 
 	    return(connectivityScore(x=x, 
 	                             y=HDAC[,2,drop=FALSE], 
 	                             method="gsea", nperm=100))
@@ -204,6 +215,34 @@ options(keep.source=TRUE)
   res <- res[order(res[,1], decreasing=T),]
   xtable(res, 
     caption='Connectivity Score results for HDAC inhibitor gene signature.')
+
+
+###################################################
+### code chunk number 9: biomarkers
+###################################################
+
+  data(CCLEsmall)
+  features <- featureNames(CCLEsmall, "rna")[
+                          which(featureInfo(CCLEsmall,
+                                            "rna")$Symbol == "NQO1")]
+  sig.rna <- drugSensitivitySig(pSet=CCLEsmall, 
+                            mDataType="rna", 
+                            drugs=c("17-AAG"), 
+                            features=features, 
+                            sensitivity.measure="auc_published", 
+                            molecular.summary.stat="median", 
+                            sensitivity.summary.stat="median")
+  sig.mut <- drugSensitivitySig(pSet=CCLEsmall, 
+                            mDataType="mutation", 
+                            drugs=c("PD-0325901"), 
+                            features="BRAF", 
+                            sensitivity.measure="auc_published", 
+                            molecular.summary.stat="and", 
+                            sensitivity.summary.stat="median")
+  sig <- rbind(sig.rna, sig.mut)
+  rownames(sig) <- c("17-AAG + NQO1","PD-0325901 + BRAF")
+  colnames(sig) <- dimnames(sig.mut)[[3]]
+  xtable(sig, caption='P Value of Gene-Drug Association')
 
 
 ###################################################
