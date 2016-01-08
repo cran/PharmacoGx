@@ -46,7 +46,7 @@
 ##                            featureNames(CCLEsmall,"rna"))
 ##   common <- intersectPSet(list('CCLE'=CCLEsmall,
 ##                                'GDSC'=GDSCsmall),
-##                           intersectOn=c("cell.lines", "drugs"))
+##                           intersectOn=c("cell.lines", "drugs"), strictIntersect=TRUE)
 ## 
 ##   
 ##   GDSC.auc <- summarizeSensitivityProfiles(
@@ -125,7 +125,7 @@
                            featureNames(CCLEsmall,"rna"))
   common <- intersectPSet(list('CCLE'=CCLEsmall,
                                'GDSC'=GDSCsmall),
-                          intersectOn=c("cell.lines", "drugs"))
+                          intersectOn=c("cell.lines", "drugs"), strictIntersect=TRUE)
 
   
   GDSC.auc <- summarizeSensitivityProfiles(
@@ -212,7 +212,7 @@
   
   rownames(res) <- c("Connectivity", "P Value")
   res <- t(res)
-  res <- res[order(res[,1], decreasing=T),]
+  res <- res[order(res[,1], decreasing=TRUE),]
   xtable(res, 
     caption='Connectivity Score results for HDAC inhibitor gene signature.')
 

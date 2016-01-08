@@ -31,13 +31,13 @@ availablePSets <- function(saveDir=file.path(".", "PSets"), myfn="PSets.csv", ve
 #' \code{PharmacoGx}.
 #'
 #' @param name \code{Character} string, the name of the PhamracoSet to download.
-#'   The available options are CGP, CCLE, and CMAP
 #' @param saveDir \code{Character} string with the folder path where the
 #'     PharmacoSet should be saved. Defaults to \code{'./PSets/'}. Will create
 #'     directory if it does not exist.
 #' @param myfn \code{character} string, the file name to save the dataset under
 #' @param verbose \code{bool} Should status messages be printed during download.
 #'   Defaults to TRUE.
+#' @return A PSet object with the dataset, downloaded from our server
 #' @export
 #' @import downloader 
 

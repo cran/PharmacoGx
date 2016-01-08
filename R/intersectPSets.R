@@ -5,8 +5,7 @@
 #' and/or cell lines, and return PharmacoSets that contain data only pertaining 
 #' to the common drugs, and/or cell lines. The mapping between dataset 
 #' drug and cell names is done either using annotations found in the 
-#' PharmacoSet object's internal curation slot, or according to matching tables 
-#' provided by the user
+#' PharmacoSet object's internal curation slot
 #' 
 #' @examples 
 #' data(GDSCsmall)
@@ -88,18 +87,40 @@ intersectPSet <- function (pSets, intersectOn=c("drugs", "cell.lines", "concentr
     }
     common.molecular.cells <- list()
     for (molecular.type in molecular.types) {
-      common.molecular.cells[[molecular.type]] <- intersectList(lapply(pSets, 
-        function (pSet) { return(unionList(sapply(pSet@molecularProfiles, 
+      if(strictIntersect){
+        common.molecular.cells[[molecular.type]] <- intersectList(lapply(pSets, 
+          function (pSet) { 
+            eSets <- names(unlist(sapply(pSet@molecularProfiles, function(eSet){grep(molecular.type, Biobase::annotation(eSet))})))
+            if(length(eSets) > 0){
+              return(intersectList(sapply(eSets, 
+              function(eSet) {
+                if (length(grep(molecular.type, Biobase::annotation(pSet@molecularProfiles[[eSet]]))) > 0) {
+                  intersect(Biobase::pData(pSet@molecularProfiles[[eSet]])$cellid, common.cells)
+                }
+              })))
+            }
+        }))
+      }else{
+        common.molecular.cells[[molecular.type]] <- intersectList(lapply(pSets, 
+        function (pSet) { 
+          eSets <- names(unlist(sapply(pSet@molecularProfiles, function(eSet){grep(molecular.type, Biobase::annotation(eSet))})))
+          return(unionList(sapply(eSets, 
           function(eSet) {
-            if (length(grep(molecular.type, Biobase::annotation(eSet))) > 0) {
-              intersect(Biobase::pData(eSet)$cellid, common.cells)
-          }
-        })))
-      }))
+            if (length(grep(molecular.type, Biobase::annotation(pSet@molecularProfiles[[eSet]]))) > 0) {
+              intersect(Biobase::pData(pSet@molecularProfiles[[eSet]])$cellid, common.cells)
+            }
+          })))
+        }))
+      }
     }
     
+    
     for(i in 1:length(pSets)){
-      pSets[[i]] <- subsetTo(pSet=pSets[[i]], drugs=common.drugs, cells=common.cells, exps=expMatch, molecular.data.cells=common.molecular.cells)
+      if(strictIntersect){
+          pSets[[i]] <- subsetTo(pSet=pSets[[i]], drugs=common.drugs, cells=common.cells, exps=expMatch, molecular.data.cells=common.molecular.cells)
+      } else {
+          pSets[[i]] <- subsetTo(pSet=pSets[[i]], drugs=common.drugs, cells=common.cells, molecular.data.cells=common.molecular.cells)
+      }    
     }
     return(pSets)
   }
