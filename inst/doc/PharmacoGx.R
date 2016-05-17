@@ -50,20 +50,20 @@
 ## 
 ##   
 ##   GDSC.auc <- summarizeSensitivityProfiles(
-##                 common$GDSC,
+##                 pSet=common$GDSC,
 ##                 sensitivity.measure='auc_published', 
 ##                 summary.stat="median")
 ##   CCLE.auc <- summarizeSensitivityProfiles(
-##                 common$CCLE,
+##                 pSet=common$CCLE,
 ##                 sensitivity.measure='auc_published', 
 ##                 summary.stat="median")
 ##   
 ##   GDSC.ic50 <- summarizeSensitivityProfiles(
-##                 common$GDSC, 
+##                 pSet=common$GDSC, 
 ##                 sensitivity.measure='ic50_published', 
 ##                 summary.stat="median")
 ##   CCLE.ic50 <- summarizeSensitivityProfiles(
-##                 common$CCLE, 
+##                 pSet=common$CCLE, 
 ##                 sensitivity.measure='ic50_published', 
 ##                 summary.stat="median")
 ##   
@@ -129,20 +129,20 @@
 
   
   GDSC.auc <- summarizeSensitivityProfiles(
-                common$GDSC,
+                pSet=common$GDSC,
                 sensitivity.measure='auc_published', 
                 summary.stat="median")
   CCLE.auc <- summarizeSensitivityProfiles(
-                common$CCLE,
+                pSet=common$CCLE,
                 sensitivity.measure='auc_published', 
                 summary.stat="median")
   
   GDSC.ic50 <- summarizeSensitivityProfiles(
-                common$GDSC, 
+                pSet=common$GDSC, 
                 sensitivity.measure='ic50_published', 
                 summary.stat="median")
   CCLE.ic50 <- summarizeSensitivityProfiles(
-                common$CCLE, 
+                pSet=common$CCLE, 
                 sensitivity.measure='ic50_published', 
                 summary.stat="median")
   

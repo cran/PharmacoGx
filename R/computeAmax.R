@@ -1,23 +1,25 @@
 #' Fits dose-response curves to data given by the user
-#' and returns the IC50 of the fitted curve.
-#'
+#' and returns the Amax of the fitted curve.
+#' Amax: 100 - viability at maximum concentarion (in fitted curve)
+#' 
 #' @examples
 #' dose <- c("0.0025","0.008","0.025","0.08","0.25","0.8","2.53","8") 
 #' viability <- c("108.67","111","102.16","100.27","90","87","74","57")
-#' computeIC50(dose, viability)
-#' 
+#' computeAmax(dose, viability)
+#'
 #' @param conc [vector] is a vector of drug concentrations.
+#' 
 #' @param viability [vector] is a vector whose entries are the viability values observed in the presence of the
 #' drug concentrations whose logarithms are in the corresponding entries of the log_conc, expressed as percentages
 #' of viability in the absence of any drug.
+#' 
 #' @param trunc [logical], if true, causes viability data to be truncated to lie between 0 and 1 before
 #' curve-fitting is performed.
-#' @param verbose [logical] should diagnostic messages be printed? (default=FALSE)
-#' @return An estimate of the IC50 for the concentrations and viabilities provided
+#' @param verbose [logical] should warnings be printed
 #' @export
 
-computeIC50 <- function(conc, viability, trunc = TRUE, verbose=FALSE) {
-  
+
+computeAmax <- function(conc, viability, trunc = TRUE, verbose=FALSE) {
   conc <- as.numeric(conc[!is.na(conc)])
   viability <- as.numeric(viability[!is.na(viability)])
   ii <- which(conc == 0)
@@ -27,12 +29,12 @@ computeIC50 <- function(conc, viability, trunc = TRUE, verbose=FALSE) {
   }
   
   #CHECK THAT FUNCTION INPUTS ARE APPROPRIATE
-  if (prod(is.finite(conc)) != 1) {
+  if (!all(is.finite(conc))) {
     print(conc)
     stop("Concentration vector contains elements which are not real numbers.")
   }
   
-  if (prod(is.finite(viability)) != 1) {
+  if (!all(is.finite(viability))) {
     print(viability)
     stop("Viability vector contains elements which are not real numbers.")
   }
@@ -75,5 +77,9 @@ computeIC50 <- function(conc, viability, trunc = TRUE, verbose=FALSE) {
                                        conc_as_log = TRUE,
                                        viability_as_pct = FALSE,
                                        trunc = trunc))
-  return(as.numeric(ifelse(pars[2] < 1 / 2, 10 ^ pars[3] * (1 - 2 * pars[2]) ^ (-1 / pars[1]), Inf)))
+  x <- 100 - .Hill(max(log_conc), pars) * 100
+  names(x) <- "Amax"
+  return(x)
+  
 }
+  

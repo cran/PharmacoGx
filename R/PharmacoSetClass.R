@@ -44,7 +44,7 @@
 .PharmacoSet <- setClass("PharmacoSet", slots = list(
                                                      annotation = "list",
                                                      molecularProfiles = "list",
-                                                      cell="data.frame", 
+                                                     cell="data.frame", 
                                                      drug="data.frame", 
                                                      datasetType="character", 
                                                      sensitivity="list",
@@ -54,16 +54,12 @@
                                                      # table.summary="list",
                                                      # dateCreated="character",
                                                      ))
-#test <- new("PharmacoSet",cell=data.cmap$cell, drug=data.cmap$drug)
-#exprs(test)
-# setGeneric("PharmacoSet",
-#     function(annotation,
-#         molecularProfiles,
-#         cell=matrix(),
-#         drug=list(),
-#         sensitivity=list(),
-#         datasetType=c("sensitivity", "perturbation"),
-#         ... ) standardGeneric("PharmacoSet"), signature="ExpressionSet")
+
+
+# The default constructor above does a poor job of explaining the required structure of a PharmacoSet. 
+# The constructor function defined below guides the user into providing the required components of the curation and senstivity lists
+# and hides the annotation slot which the user does not need to manually fill. 
+# This also follows the design of the Expression Set class.
 
 #' PharmacoSet constructor
 #' 
@@ -510,7 +506,7 @@ setMethod(drugNames, "PharmacoSet", function(pSet){
 #     pData(pSet)[["drugid"]]
 #   
 #  }
-  rownames(pSet@drug)
+  rownames(drugInfo(pSet))
 
 })
 
@@ -552,7 +548,7 @@ setGeneric("cellNames", function(pSet) standardGeneric("cellNames"))
 #' @export
 setMethod(cellNames, "PharmacoSet", function(pSet){
   
-  rownames(pSet@cell)
+  rownames(cellInfo(pSet))
   
 })
 
@@ -733,22 +729,21 @@ setReplaceMethod('sensNumber', signature = signature(object="PharmacoSet",value=
 #' @export
 setMethod("show", signature=signature(object="PharmacoSet"), 
     function(object) {
-        cat("Name: ", object@annotation$name, "\n")
-        cat("Date Created: ", object@annotation$dateCreated, "\n")
-    cat("Number of cell lines: ", nrow(object@cell), "\n")
-    cat("Number of drug compounds: ", nrow(object@drug), "\n")
-        if("dna" %in% names(object@molecularProfiles)){cat("DNA: \n");cat("\tDim: ", dim(object@molecularProfiles$dna), "\n")}
-      if("rna" %in% names(object@molecularProfiles)){cat("RNA: \n");cat("\tDim: ", dim(object@molecularProfiles$rna), "\n")}
-      if("rnaseq" %in% names(object@molecularProfiles)){cat("RNASeq: \n");cat("\tDim: ", dim(object@molecularProfiles$rnaseq), "\n")}
-      if("snp" %in% names(object@molecularProfiles)){cat("SNP: \n");cat("\tDim: ", dim(object@molecularProfiles$snp), "\n")}
-      if("cnv" %in% names(object@molecularProfiles)){cat("CNV: \n");cat("\tDim: ", dim(object@molecularProfiles$cnv), "\n")}
+        cat("Name: ", pSetName(object), "\n")
+        cat("Date Created: ", dateCreated(object), "\n")
+    cat("Number of cell lines: ", nrow(cellInfo(object)), "\n")
+    cat("Number of drug compounds: ", nrow(drugInfo(object)), "\n")
+        if("dna" %in% names(object@molecularProfiles)){cat("DNA: \n");cat("\tDim: ", dim(molecularProfiles(object, mDataType="dna")), "\n")}
+      if("rna" %in% names(object@molecularProfiles)){cat("RNA: \n");cat("\tDim: ", dim(molecularProfiles(object, mDataType="rna")), "\n")}
+      if("rnaseq" %in% names(object@molecularProfiles)){cat("RNASeq: \n");cat("\tDim: ", dim(molecularProfiles(object, mDataType="rnaseq")), "\n")}
+      if("snp" %in% names(object@molecularProfiles)){cat("SNP: \n");cat("\tDim: ", dim(molecularProfiles(object, mDataType="snp")), "\n")}
+      if("cnv" %in% names(object@molecularProfiles)){cat("CNV: \n");cat("\tDim: ", dim(molecularProfiles(object, mDataType="cnv")), "\n")}
         cat("Drug pertubation: \n")
         cat("\tPlease look at pertNumber(pSet) to determine number of experiments for each drug-cell combination.\n")
         cat("Drug sensitivity: \n")
-        cat("\tNumber of Experiments: ",nrow(object@sensitivity$raw),"\n")
+        cat("\tNumber of Experiments: ",nrow(sensitivityInfo(object)),"\n")
         cat("\tPlease look at sensNumber(pSet) to determine number of experiments for each drug-cell combination.\n")
     })
-
 
 
 #'`[`
@@ -760,8 +755,19 @@ setMethod("show", signature=signature(object="PharmacoSet"),
 #'@param drop A boolean flag of whether to drop single dimensions or not
 #'@export
 setMethod(`[`, "PharmacoSet", function(x, i, j, ..., drop = FALSE){
-    stop("Please use the subsetTo function and the getter functions to access the object data. Other methods of accessing the object slots are discouraged and may lead to unexpected behaviour.")
+	return(subsetTo(x, cells=i, drugs=j,  molecular.data.cells=i))
 })
+
+#'Get the dimensions of a PharmacoSet
+#'
+#'@param x PharmacoSet
+#'@export
+setMethod("dim", signature=signature(x="PharmacoSet"), function(x){
+
+  return(c(Cells=length(cellNames(x)), Drugs=length(drugNames(x))))
+
+})
+
 
 ## FIXED? TODO:: Subset function breaks if it doesnt find cell line in sensitivity info
 #' A function to subset a PharmacoSet to data containing only specified drugs, cells and genes
@@ -801,9 +807,15 @@ subsetTo <- function(pSet, cells=NULL, drugs=NULL, molecular.data.cells=NULL, ke
   
   adArgs = list(...)
   if ("exps" %in% names(adArgs)) {
-    exps <- adArgs[["exps"]]
-    exps <- exps[,pSetName(pSet)]
-  } else {
+  	exps <- adArgs[["exps"]]
+  	if(class(exps)=="data.frame"){
+  		exps2 <- exps[[pSetName(pSet)]]
+  		names(exps2) <- rownames(exps)
+  		exps <- exps2
+  	} else{
+  		exps <- exps[[pSetName(pSet)]]
+  	}
+  }else {
     exps <- NULL
   }
   if(!missing(cells)){
@@ -1079,8 +1091,13 @@ updateDrugId <- function(pSet, new.ids = vector("character")){
   celln <- rownames(pSet@cell)
   
   sensitivity.info <- matrix(0, nrow=length(celln), ncol=length(drugn), dimnames=list(celln, drugn))
-    
-  tt <- table(pSet@sensitivity$info[ , "cellid"], pSet@sensitivity$info[ , "drugid"])
+  drugids <- pSet@sensitivity$info[ , "drugid"]
+  cellids <- pSet@sensitivity$info[ , "cellid"]
+  cellids <- cellids[grep("///", drugids, invert=TRUE)]
+  drugids <- drugids[grep("///", drugids, invert=TRUE)]
+  
+  
+  tt <- table(cellids, drugids)
   sensitivity.info[rownames(tt), colnames(tt)] <- tt
   
     return(sensitivity.info)
@@ -1177,10 +1194,62 @@ checkPSetStructure <-
       }
     }
     if("tissueid" %in% colnames(pSet@cell)) {
-      message(sprintf("There is no tissue type for this cell line(s): %s", paste(rownames(pSet@cell)[which(is.na(pSet@cell[,"tissueid"]))]), collapse=" "))
+      if("unique.tissueid" %in% colnames(pSet@curation$tissue))
+      {
+        if(length(intersect(rownames(pSet@curation$tissue), rownames(pSet@cell))) != nrow(pSet@cell)) {
+          message("rownames of curation tissue slot should be the same as cell slot (curated cell ids)")
+        } else{
+          if(length(intersect(pSet@cell$tissueid, pSet@curation$tissue$unique.tissueid)) != length(table(pSet@cell$tissueid))){
+            message("tissueid should be the same as unique tissue id from tissue curation slot")
+          }
+          message(sprintf("There is no tissue type for this cell line(s): %s", paste(rownames(pSet@cell)[which(is.na(pSet@cell[,"tissueid"]))]), collapse=" "))
+        }
+      } else {
+        message("unique.tissueid which is curated tissue id across data set should be a column of tissue curation slot")
+      }
     } else {
       warning("tissueid does not exist in cell slot")
     }
+    
+    if("unique.cellid" %in% colnames(pSet@curation$cell)) {
+      if(length(intersect(pSet@curation$cell$unique.cellid, rownames(pSet@cell))) != nrow(pSet@cell)) {
+        print("rownames of cell slot should be curated cell ids")
+      }
+    } else {
+      print("unique.cellid which is curated cell id across data set should be a column of cell curation slot")
+    }
+#     if("cellid" %in% colnames(pSet@cell)) {
+#       if(length(intersect(pSet@curation$cell$cellid, rownames(pSet@cell))) != nrow(pSet@cell)) {
+#         print("values of cellid column should be curated cell line ids")
+#       }
+#     } else {
+#       print("cellid which is curated cell id across data set should be a column of cell slot")
+#     }
+    
+    if(length(intersect(rownames(pSet@curation$cell), rownames(pSet@cell))) != nrow(pSet@cell)) {
+      print("rownames of curation cell slot should be the same as cell slot (curated cell ids)")
+    }
+    
+    if("unique.drugid" %in% colnames(pSet@curation$drug)) {
+      if(length(intersect(pSet@curation$drug$unique.drugid, rownames(pSet@drug))) != nrow(pSet@drug)) {
+        print("rownames of drug slot should be curated drug ids")
+      }
+    } else {
+      print("unique.drugid which is curated drug id across data set should be a column of drug curation slot")
+    }
+    
+#     if("drugid" %in% colnames(pSet@drug)) {
+#       if(length(intersect(pSet@curation$drug$drugid, rownames(pSet@drug))) != nrow(pSet@drug)) {
+#         print("values of drugid column should be curated drug ids")
+#       }
+#     } else {
+#       print("drugid which is curated drug id across data set should be a column of drug slot")
+#     }
+    
+    if(length(intersect(rownames(pSet@curation$cell), rownames(pSet@cell))) != nrow(pSet@cell)) {
+      print("rownames of curation drug slot should be the same as drug slot (curated drug ids)")
+    }
+    
     if(class(pSet@cell) != "data.frame") {
       warning("cell slot class type should be dataframe")
     }
@@ -1200,8 +1269,10 @@ checkPSetStructure <-
         warning("cellid does not exist in sensitivity info")
       }
       if("drugid" %in% colnames(pSet@sensitivity$info)) {
-        if(!all(pSet@sensitivity$info[,"drugid"] %in% rownames(pSet@drug))) {
-          warning("not all the drugs in sensitivity data are in drug slot")
+        drug.ids <- unique(pSet@sensitivity$info[,"drugid"])
+        drug.ids <- drug.ids[grep("///",drug.ids, invert=T)]
+        if(!all(drug.ids %in% rownames(pSet@drug))) {
+          print("not all the drugs in sensitivity data are in drug slot")
         }
       }else {
         warning("drugid does not exist in sensitivity info")

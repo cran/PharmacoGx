@@ -4,7 +4,7 @@
 #' Given a list of PharmacoSets, the function will find the common drugs,
 #' and/or cell lines, and return PharmacoSets that contain data only pertaining 
 #' to the common drugs, and/or cell lines. The mapping between dataset 
-#' drug and cell names is done either using annotations found in the 
+#' drug and cell names is done using annotations found in the 
 #' PharmacoSet object's internal curation slot
 #' 
 #' @examples 
@@ -67,16 +67,65 @@ intersectPSet <- function (pSets, intersectOn=c("drugs", "cell.lines", "concentr
           paste(x@sensitivity$info$cellid, x@sensitivity$info$drugid, sep = "_")
         } else { NULL }
       }))
-      expMatch <- data.frame(lapply(pSets, 
-      function (x, common.exps){
-      if ("cellid" %in% colnames(x@sensitivity$info) & "drugid" %in% colnames(x@sensitivity$info)){
-      return(rownames(x@sensitivity$info)[which(paste(x@sensitivity$info$cellid, x@sensitivity$info$drugid, sep = "_") %in% common.exps)])
-      }else { NULL }
-      }, common.exps=common.exps))
-      expMatch <- as.matrix(expMatch)
-      rownames(expMatch) <- common.exps
+      # expMatch <- data.frame(lapply(pSets, 
+      #   function (x, common.exps){
+      #     if ("cellid" %in% colnames(x@sensitivity$info) & "drugid" %in% colnames(x@sensitivity$info)){
+
+      #       myx <- match(paste(x@sensitivity$info$cellid, x@sensitivity$info$drugid, sep = "_") ,common.exps)
+
+      #       res <- rownames(x@sensitivity$info)[!is.na(myx)]
+
+      #       names(res) <- common.exps[na.omit(myx)]
+
+      #       res <- res[common.exps]
+
+      #       return(res)
+
+      #     } else { NULL }
+      #   }, common.exps=common.exps))
+      expMatch <- lapply(pSets, 
+        function (x, common.exps){
+          if ("cellid" %in% colnames(x@sensitivity$info) & "drugid" %in% colnames(x@sensitivity$info)){
+
+            myx <- match(paste(x@sensitivity$info$cellid, x@sensitivity$info$drugid, sep = "_") ,common.exps)
+
+            res <- rownames(x@sensitivity$info)[!is.na(myx)]
+
+            names(res) <- common.exps[na.omit(myx)]
+
+            res <- res[common.exps]
+
+            return(res)
+
+          } else { NULL }
+        }, common.exps=common.exps)
+      # }, common.exps=common.exps)
+
+      if(strictIntersect){
+        if(length(unique(sapply(expMatch, length)))>1){
+          stop("Strict Intersecting works only when each PSet has 1 replicate per cell-drug pair. Use collapseSensitvityReplicates to reduce the sensitivity data as required")
+        }
+        expMatch <- data.frame(expMatch,  stringsAsFactors=FALSE)
+      # expMatch2 <- as.matrix(expMatch2)
+        rownames(expMatch) <- common.exps
+        colnames(expMatch) <- names(pSets)
+
+      } else {
+        
+        expMatch <- lapply(expMatch, function(x){names(x) <- x; return(x)})
+      }
     }
     if (("drugs" %in% intersectOn) & ("cell.lines" %in% intersectOn) & ("concentrations" %in% intersectOn)) {
+
+      if(length(unique(sapply(expMatch, length)))>1){
+        stop("Intersecting on concentrations works only when each PSet has 1 replicate per cell-drug pair. Use collapseSensitvityReplicates to reduce the sensitivity data as required")
+      }
+      
+      expMatch <- data.frame(expMatch,  stringsAsFactors=FALSE)
+      # expMatch2 <- as.matrix(expMatch2)
+      rownames(expMatch) <- common.exps
+      colnames(expMatch) <- names(pSets)
+ 
       pSets <- .calculateSensitivitiesStar(pSets, exps=expMatch, cap=100)
     }
     molecular.types  <- NULL
@@ -125,4 +174,5 @@ intersectPSet <- function (pSets, intersectOn=c("drugs", "cell.lines", "concentr
     return(pSets)
   }
 }
+
 

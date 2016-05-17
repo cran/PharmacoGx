@@ -1,4 +1,4 @@
-#    Get Drug Perturbation Signatures from a PharmacoSet
+#	Get Drug Perturbation Signatures from a PharmacoSet
 ###############################################################################
 ## Drug perturbation analysis
 ## create profiles before vs after drug for each drug 
@@ -39,21 +39,19 @@
 #' @return [list] a 3D array with genes in the first dimension, drugs in the
 #'   second, and return values in the third.
 #' @export
-#' @import parallel
 
 drugPerturbationSig <- function(pSet, mDataType, drugs, features, nthread=1, returnValues=c("estimate","tstat", "pvalue", "fdr"), verbose=FALSE){
-  
-    availcore <- parallel::detectCores()
-    if ( nthread > availcore) {
-      nthread <- availcore
-    }
+	availcore <- parallel::detectCores()
+	if ( nthread > availcore) {
+	  nthread <- availcore
+	}
   options("mc.cores"=nthread)
   
   if (mDataType %in% names(pSet@molecularProfiles)) {
     #eset <- pSet@molecularProfiles[[mDataType]]
-        if(Biobase::annotation(pSet@molecularProfiles[[mDataType]])!="rna"){
-            stop(sprintf("Only rna data type perturbations are currently implemented"))
-        }
+		if(Biobase::annotation(pSet@molecularProfiles[[mDataType]])!="rna"){
+			stop(sprintf("Only rna data type perturbations are currently implemented"))
+		}
   } else {
     stop (sprintf("This pSet does not have any molecular data of type %s, choose among: %s", mDataType), paste(names(pSet@molecularProfiles), collapse=", "))
   }
@@ -83,18 +81,17 @@ drugPerturbationSig <- function(pSet, mDataType, drugs, features, nthread=1, ret
     features <- features[fix]
   }
   
-  splitix <- parallel::splitIndices(nx=length(drugn), ncl=nthread)
-  splitix <- splitix[sapply(splitix, length) > 0]
-  mcres <- parallel::mclapply(splitix, function(x, drugn, exprs, sampleinfo) {
+  # splitix <- parallel::splitIndices(nx=length(drugn), ncl=nthread)
+  # splitix <- splitix[sapply(splitix, length) > 0]
+  mcres <- lapply(drugn, function(x, exprs, sampleinfo) {
     res <- NULL
-    for(i in drugn[x]) {
-      ## using a linear model (x ~ concentration + cell + batch + duration)
-      rr <- rankGeneDrugPerturbation(data=exprs, drug=i, drug.id=as.character(sampleinfo[ , "drugid"]), drug.concentration=as.numeric(sampleinfo[ , "concentration"]), type=as.character(sampleinfo[ , "cellid"]), xp=as.character(sampleinfo[ , "xptype"]), batch=as.character(sampleinfo[ , "batchid"]), duration=as.character(sampleinfo[ , "duration"]) ,single.type=FALSE, nthread=1, verbose=FALSE)$all[ , returnValues, drop=FALSE]
-      res <- c(res, list(rr))
-    }
-    names(res) <- drugn[x]
+    i = x 
+    ## using a linear model (x ~ concentration + cell + batch + duration)
+    res <- rankGeneDrugPerturbation(data=exprs, drug=i, drug.id=as.character(sampleinfo[ , "drugid"]), drug.concentration=as.numeric(sampleinfo[ , "concentration"]), type=as.character(sampleinfo[ , "cellid"]), xp=as.character(sampleinfo[ , "xptype"]), batch=as.character(sampleinfo[ , "batchid"]), duration=as.character(sampleinfo[ , "duration"]) ,single.type=FALSE, nthread=nthread, verbose=FALSE)$all[ , returnValues, drop=FALSE]
+    res <- list(res)
+    names(res) <- i
     return(res)
-  }, drugn=drugn, exprs=t(molecularProfiles(pSet, mDataType)[features, , drop=FALSE]), sampleinfo=PharmacoGx::phenoInfo(pSet, mDataType))
+  }, exprs=t(molecularProfiles(pSet, mDataType)[features, , drop=FALSE]), sampleinfo=PharmacoGx::phenoInfo(pSet, mDataType))
   res <- do.call(c, mcres)
   res <- res[!sapply(res, is.null)]
   drug.perturbation <- array(NA, dim=c(nrow(featureInfo(pSet, mDataType)[features,, drop=FALSE]), length(res), ncol(res[[1]])), dimnames=list(rownames(featureInfo(pSet, mDataType)[features,]), names(res), colnames(res[[1]])))
