@@ -1,4 +1,4 @@
-e52fe278affa2988f2027080014dbce2 *DESCRIPTION
+d89723a41ee0a85374eef65f893a66a9 *DESCRIPTION
 1834da739f984ec2f02dd49c6f3e4fe8 *NAMESPACE
 0a495e3f9475a5b971390c7c3feef686 *R/AdaptiveMatthewCor.R
 9fed4ac71515b14e0b63f4f75a019bae *R/GWC.R
@@ -10,7 +10,7 @@ e52fe278affa2988f2027080014dbce2 *DESCRIPTION
 63a0a0087abf43b3769e391b7fe44d94 *R/computeABC.R
 d04b679ddded6c5eb6f46d43fa389f2e *R/computeAUC.R
 c770c2f3fb14fac544365d5b5a59eb0d *R/computeAmax.R
-ed8a4a9084dd4cc5b54ab6cbbf211bee *R/computeDrugSensitivity.R
+14e9605298d08075692f7dca37b4402b *R/computeDrugSensitivity.R
 400c62c8b26c23ff6f875127d01b8f84 *R/computeIC50.R
 65b059df01e0f085c4c3e4609ee1cdd2 *R/computeSlope.R
 fe757c878abe46edc027f230b92b786e *R/connectivityScore.R
@@ -29,7 +29,7 @@ f0b0649a538d904112b224c7265f4a38 *R/geneDrugPerturbation.R
 7804bdef06ae3e23d9c837ce6f893517 *R/geneDrugSensitivity.R
 e9e01e629d51962b4a3a6f383c92bf82 *R/getRawSensitivityMatrix.R
 c4f8f35fb0cd01e1bf34d6ddc3b1241c *R/intersectList.R
-aedc74aebef48d528171191105ff4e67 *R/intersectPSets.R
+fde7f47104b79c0cf8351e163e3bbe46 *R/intersectPSets.R
 fd88e540bebac658d9978f753e801dc0 *R/rankGeneDrugPerturbation.R
 1ff0f6b7be7c4f1567378582cb8c2543 *R/rankGeneDrugSensitivity.R
 353f7e78da0c254cf719ae9d004b111f *R/signatureClass.R
@@ -38,7 +38,7 @@ d02efaa31147300a9259092e8c427752 *R/summarizeMolecularProfiles.R
 66657e51ca0baa6331e57fa45cc4aebc *R/summarizeSensitivityProfiles.R
 ebbf28ba6a590728c1466b2fe8da9754 *R/unionList.R
 edcf760dd5ac1afe6aa704ac746b22ec *README
-f4466c93c6c882157ffdc765b911f97d *build/vignette.rds
+f937c61a0ad61ca9fcc4f15d7ecff1d0 *build/vignette.rds
 9477ce904c74e105a2d2abd230350cef *data/CCLEsmall.rda
 6923fe52a29450152ee9f51bac9d07a4 *data/CMAPsmall.rda
 2a649c2d2f177bb68b6bab683ce9348b *data/GDSCsmall.rda
@@ -47,10 +47,10 @@ cc3c6f6048c0b30fc225de143c12e001 *data/HDAC_genes.rda
 f407e1c5c77e062f1e565f12ef434fff *inst/CITATION
 93207eddf25c7deb002aacc24664c692 *inst/doc/CreatingPharmacoSet.R
 813c5c1f3d2d316d8f62670794ceb7d0 *inst/doc/CreatingPharmacoSet.Rnw
-a3e3c7a30ced0537d27cd09b18159b95 *inst/doc/CreatingPharmacoSet.pdf
+963ddbdf667d7faaf3edcda53240ee9b *inst/doc/CreatingPharmacoSet.pdf
 18c11074ea97663337eb2cbaf1d4da0e *inst/doc/PharmacoGx.R
 dca73f9655c6cb3327d0342cf25e5839 *inst/doc/PharmacoGx.Rnw
-a429b26d8baa4297a7b82a4580ca2d06 *inst/doc/PharmacoGx.pdf
+f44e5f886f44cde7fa19d039ba83392a *inst/doc/PharmacoGx.pdf
 5d05cb8b8ad98c07a88fbb9c3b7efeb3 *man/CCLEsmall.Rd
 593d199e90267f2ad0ee545caa136d60 *man/CMAPsmall.Rd
 b354507633dc234706a862e70e336bf7 *man/GDSCsmall.Rd
@@ -112,9 +112,7 @@ aab06ec9e19719a96aa981a46da39ac9 *man/sensitivityProfiles-set.Rd
 769ff52ee19b279dc2724838dfe9dce0 *man/summarizeMolecularProfiles.Rd
 a26875900556f7138425a0c556315e83 *man/summarizeSensitivityProfiles.Rd
 feb74d7ef4baaea594a1c875b951bebc *man/unionList.Rd
-59af8835692df3a4717f32869615bbca *vignettes/CreatingPharmacoSet-concordance.tex
 813c5c1f3d2d316d8f62670794ceb7d0 *vignettes/CreatingPharmacoSet.Rnw
-31bd0238b7785475cfebdcaeaf8cda37 *vignettes/CreatingPharmacoSet.tex
 dca73f9655c6cb3327d0342cf25e5839 *vignettes/PharmacoGx.Rnw
 0a1c145a5ef73983dbbf130e0ced5379 *vignettes/biblio.bib
 b62b07b83dd4f275fd9eab4e7e9bd0fc *vignettes/pharmacogx.bib
